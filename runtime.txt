@@ -1,1 +1,7 @@
-python-3.11.9
+Flask==3.0.3
+numpy==2.1.2
+pandas==2.2.2
+scikit-learn==1.9.1
+matplotlib==3.9.0
+joblib==1.4.2
+gunicorn
