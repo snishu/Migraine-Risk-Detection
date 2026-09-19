@@ -1,0 +1,40 @@
+{
+  "best_model": "Logistic Regression",
+  "results": {
+    "Logistic Regression": {
+      "accuracy": 65.92,
+      "f1_weighted": 65.79,
+      "cv_mean": 67.54,
+      "cv_std": 1.06
+    },
+    "SVM (RBF Kernel)": {
+      "accuracy": 65.58,
+      "f1_weighted": 65.7,
+      "cv_mean": 65.31,
+      "cv_std": 1.31
+    },
+    "Random Forest": {
+      "accuracy": 61.42,
+      "f1_weighted": 61.29,
+      "cv_mean": 62.58,
+      "cv_std": 1.39
+    }
+  },
+  "features": [
+    "Age",
+    "Gender",
+    "Sleep_Hours",
+    "Stress_Level",
+    "Screen_Time_Hours",
+    "Water_Intake_Liters",
+    "Skipped_Meals",
+    "Caffeine_Cups",
+    "Physical_Activity_Hours",
+    "Weather_Sensitive",
+    "Family_History",
+    "Hormonal_Changes",
+    "Alcohol_Consumption",
+    "Noise_Sensitivity",
+    "Light_Sensitivity"
+  ]
+}

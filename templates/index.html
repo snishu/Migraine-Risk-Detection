@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Migraine Risk Detection · ML Web App</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <span class="mark">M</span>
+      <h1>Migraine Risk Detection</h1>
+    </div>
+    <p class="tag">A machine learning system that estimates migraine risk from everyday sleep, stress, and lifestyle patterns.</p>
+  </header>
+
+  <section class="hero">
+    <h2>Know what's building up to your next migraine, before it hits.</h2>
+    <p class="sub">Fill in a few details about your day-to-day habits below. The model — trained on {{ "{:,}".format(6000) }} patient profiles — will estimate your current risk level and point out what's driving it.</p>
+
+    <div class="stat-row">
+      <div class="stat"><b>{{ model_info.best_model }}</b><span>best performing model</span></div>
+      <div class="stat"><b>{{ model_info.results[model_info.best_model].accuracy }}%</b><span>test accuracy</span></div>
+      <div class="stat"><b>15</b><span>lifestyle & health features</span></div>
+    </div>
+  </section>
+
+  <div class="tool-grid">
+    <!-- FORM -->
+    <form class="card" id="riskForm">
+      <h3>Your details</h3>
+      <p class="card-sub">Nothing is stored — this runs entirely in this session.</p>
+
+      <fieldset>
+        <legend>About you</legend>
+        <div class="field-grid">
+          <div class="field">
+            <label for="age">Age <span class="val" id="age_val">28</span></label>
+            <input type="range" id="age" min="15" max="60" value="28">
+          </div>
+          <div class="field">
+            <label for="gender">Gender</label>
+            <select id="gender">
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Sleep & stress</legend>
+        <div class="field-grid">
+          <div class="field">
+            <label for="sleep_hours">Sleep last night (hrs) <span class="val" id="sleep_hours_val">6.5</span></label>
+            <input type="range" id="sleep_hours" min="3" max="10" step="0.5" value="6.5">
+          </div>
+          <div class="field">
+            <label for="stress_level">Stress level (1-10) <span class="val" id="stress_level_val">5</span></label>
+            <input type="range" id="stress_level" min="1" max="10" value="5">
+          </div>
+          <div class="field">
+            <label for="noise_sensitivity">Noise sensitivity (1-10) <span class="val" id="noise_sensitivity_val">4</span></label>
+            <input type="range" id="noise_sensitivity" min="1" max="10" value="4">
+          </div>
+          <div class="field">
+            <label for="light_sensitivity">Light sensitivity (1-10) <span class="val" id="light_sensitivity_val">4</span></label>
+            <input type="range" id="light_sensitivity" min="1" max="10" value="4">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Daily habits</legend>
+        <div class="field-grid">
+          <div class="field">
+            <label for="screen_time">Screen time (hrs/day) <span class="val" id="screen_time_val">6</span></label>
+            <input type="range" id="screen_time" min="0.5" max="14" step="0.5" value="6">
+          </div>
+          <div class="field">
+            <label for="water_intake">Water intake (L/day) <span class="val" id="water_intake_val">2.0</span></label>
+            <input type="range" id="water_intake" min="0.3" max="5" step="0.1" value="2.0">
+          </div>
+          <div class="field">
+            <label for="caffeine_cups">Caffeine (cups/day) <span class="val" id="caffeine_cups_val">2</span></label>
+            <input type="range" id="caffeine_cups" min="0" max="6" value="2">
+          </div>
+          <div class="field">
+            <label for="skipped_meals">Meals skipped/day <span class="val" id="skipped_meals_val">0</span></label>
+            <input type="range" id="skipped_meals" min="0" max="3" value="0">
+          </div>
+          <div class="field full">
+            <label for="physical_activity">Physical activity (hrs/day) <span class="val" id="physical_activity_val">0.5</span></label>
+            <input type="range" id="physical_activity" min="0" max="3" step="0.1" value="0.5">
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Health background</legend>
+        <div class="toggle-row">
+          <span><span class="lbl">Family history of migraine</span><span class="desc">Parent or sibling diagnosed with migraine</span></span>
+          <label class="switch"><input type="checkbox" id="family_history"><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span><span class="lbl">Weather sensitive</span><span class="desc">Headaches around pressure/weather shifts</span></span>
+          <label class="switch"><input type="checkbox" id="weather_sensitive"><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span><span class="lbl">Hormonal changes</span><span class="desc">Menstrual cycle / hormonal fluctuation this week</span></span>
+          <label class="switch"><input type="checkbox" id="hormonal_changes"><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <span><span class="lbl">Alcohol consumption</span><span class="desc">Consumed in the last 24 hours</span></span>
+          <label class="switch"><input type="checkbox" id="alcohol"><span class="slider"></span></label>
+        </div>
+      </fieldset>
+
+      <button type="submit" class="submit-btn" id="submitBtn">Check my migraine risk</button>
+    </form>
+
+    <!-- RESULTS -->
+    <div class="card result-panel">
+      <div class="empty-state" id="emptyState">
+        <div class="icon">🧠</div>
+        <p>Your risk result will appear here once you submit the form.</p>
+      </div>
+
+      <div class="result-body" id="resultBody">
+        <h3>Your result</h3>
+        <p class="card-sub">Based on the details you entered</p>
+        <div class="risk-badge" id="riskBadge"><span class="dot"></span><span id="riskText">—</span></div>
+
+        <div id="probList"></div>
+
+        <div class="tips">
+          <h4>Suggested next steps</h4>
+          <ul id="tipsList"></ul>
+        </div>
+
+        <p class="disclaimer">This tool is a student ML project for educational purposes and is not a medical diagnosis. Please consult a qualified doctor for any persistent or severe headaches.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODEL SHOWCASE -->
+  <section class="showcase">
+    <h3>How the model was built</h3>
+    <p class="sub">Three classifiers were trained and compared on a {{ "{:,}".format(6000) }}-row dataset of lifestyle and health features; the strongest performer on held-out test data powers the prediction above.</p>
+
+    <table class="model-table">
+      <thead>
+        <tr><th>Model</th><th>Test accuracy</th><th>Weighted F1</th><th>5-fold CV accuracy</th></tr>
+      </thead>
+      <tbody>
+        {% for name, r in model_info.results.items() %}
+        <tr>
+          <td class="{{ 'best' if name == model_info.best_model else '' }}">{{ name }}{% if name == model_info.best_model %} · selected{% endif %}</td>
+          <td>{{ r.accuracy }}%</td>
+          <td>{{ r.f1_weighted }}%</td>
+          <td>{{ r.cv_mean }}% (± {{ r.cv_std }}%)</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="chart-grid" style="margin-top:28px;">
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='model_comparison.png') }}" alt="Model comparison chart">
+        <p class="cap">Accuracy across the three candidate models.</p>
+      </div>
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='confusion_matrix.png') }}" alt="Confusion matrix">
+        <p class="cap">Confusion matrix for the selected model on the test set.</p>
+      </div>
+      <div class="chart-card">
+        <img src="{{ url_for('static', filename='feature_importance.png') }}" alt="Feature importance chart">
+        <p class="cap">Which features influence the prediction most.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    Built with Python, scikit-learn & Flask — B.Tech CSE Final Year Project.
+  </footer>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
