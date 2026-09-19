@@ -1,6 +1,6 @@
 # 🧠 Migraine Risk Detection using Machine Learning
 
-A final-year B.Tech (CSE) project that predicts a person's **migraine risk level
+A Third-year B.Tech (Information Technology) project that predicts a person's **migraine risk level
 (Low / Medium / High)** from everyday lifestyle and health factors — sleep,
 stress, screen time, hydration, caffeine, family history, hormonal changes,
 and more — using a trained ML classifier, wrapped in a Flask web application.
